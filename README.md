@@ -7,4 +7,4 @@ The code for my Entrance Guard System project,which prototyped a practical entra
   
 ![alt tag](https://github.com/malichao/Prototyping_Entrance_Guard_System/blob/master/DSC_0407_1.jpg)  
 
-#Check out the detailed implementation [here](http://lichaoma.com/2015/11/14/entrance-guard-system/)  
+##Check out the detailed implementation [here](http://lichaoma.com/2015/11/14/entrance-guard-system/)  
