@@ -1,3 +1,4 @@
+//Comment the following macros to swtich between master and slave
 #define MASTER
 
 //2014.4.8 finish voice bidirection communication
