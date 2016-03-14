@@ -1,6 +1,4 @@
-/********************************************************/
-/*DS18B20的CRC8校验程序*/
-/********************************************************/ 
+
 uint8_t crc_table[256] = {
   0x00, 0x5e, 0xbc, 0xe2, 0x61, 0x3f, 0xdd, 0x83, 
   0xc2, 0x9c, 0x7e, 0x20, 0xa3, 0xfd, 0x1f, 0x41, 
@@ -37,20 +35,17 @@ uint8_t crc_table[256] = {
 };
 
 //使用CRC表进行校验
-uint8_t CRC8_Tables(int8_t *p, int8_t counter)
-{
+uint8_t CRC8_Tables(int8_t *p, int8_t counter) {
   int8_t crc8 = 0;
-  for( ; counter > 0; counter--)
-  {
-    crc8 = crc_table[crc8^*p]; //查表得到CRC码
+  for (; counter > 0; counter--) {
+    crc8 = crc_table[crc8 ^ *p]; //查表得到CRC码
     p++;
   }
   return crc8;
 }
 
 //CRC计算一个字符
-uint8_t crc8_byte(int8_t data) 
-{
+uint8_t crc8_byte(int8_t data) {
   uint8_t crc = 0x00;
   int8_t extract = data;
   for (int8_t tempI = 8; tempI; tempI--) {
@@ -64,8 +59,7 @@ uint8_t crc8_byte(int8_t data)
   return crc;
 }
 //CRC计算字符串
-uint8_t crc8_bytes(int8_t *data, int8_t len) 
-{
+uint8_t crc8_bytes(int8_t *data, int8_t len) {
   uint8_t crc = 0x00;
   while (len--) {
     int8_t extract = *data++;

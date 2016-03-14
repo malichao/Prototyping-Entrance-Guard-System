@@ -118,30 +118,30 @@ static const uuint16_t 8_t ASCII[][5] =
 };
 
 //显示单个数字
-void LcdNum(uuint16_t 32_t num){
-  int8_t num_arr[20]={0};
+void LcdNum(uuint16_t 32_t num) {
+  int8_t num_arr[20]= {0};
   //int8_t c=0;
   //LcdCharacter('d');
-  if(num==0){
+  if(num==0) {
     //LcdCharacter('z');
     LcdCharacter('0');
   }
-  else{
-    uint16_t  i;
+  else {
+    uint16_t i;
     for(i=0;;i++)
     {
-     if(num!=0)
-     {
-      num_arr[i]=num%10;
-      num/=10;
-      //c++;
-     }
-     else
-      break; 
+      if(num!=0)
+      {
+        num_arr[i]=num%10;
+        num/=10;
+        //c++;
+      }
+      else
+      break;
     }
     i--;
     for(;i>=0;i--)
-     LcdCharacter('0'+num_arr[i]);
+    LcdCharacter('0'+num_arr[i]);
   }
   //uint16_t  i;
   //for(i=0;i<c;i++)
@@ -149,36 +149,31 @@ void LcdNum(uuint16_t 32_t num){
 }
 
 //显示单个字符
-void LcdCharacter(int8_t character)
-{
+void LcdCharacter(int8_t character) {
   LcdWrite(LCD_D, 0x00);
-  for (uint16_t  index = 0; index < 5; index++)
-  {
+  for (uint16_t index = 0; index < 5; index++) {
     LcdWrite(LCD_D, ASCII[character - 0x20][index]);
   }
   LcdWrite(LCD_D, 0x00);
 }
- 
- //清屏
-void LcdClear(void)
-{
-  for (uint16_t  index = 0; index < LCD_X * LCD_Y / 8; index++)
-  {
+
+//清屏
+void LcdClear(void) {
+  for (uint16_t index = 0; index < LCD_X * LCD_Y / 8; index++) {
     LcdWrite(LCD_D, 0x00);
   }
 }
- //初始化
-void LcdInitialise(void)
-{
-  pinMode(PIN_SCE,   OUTPUT);
+//初始化
+void LcdInitialise(void) {
+  pinMode(PIN_SCE, OUTPUT);
   pinMode(PIN_RESET, OUTPUT);
-  pinMode(PIN_DC,    OUTPUT);
-  pinMode(PIN_SDIN,  OUTPUT);
-  pinMode(PIN_SCLK,  OUTPUT);
- 
+  pinMode(PIN_DC, OUTPUT);
+  pinMode(PIN_SDIN, OUTPUT);
+  pinMode(PIN_SCLK, OUTPUT);
+
   digitalWrite(PIN_RESET, LOW);
   digitalWrite(PIN_RESET, HIGH);
- 
+
   LcdWrite(LCD_CMD, 0x21);  // LCD Extended Commands.
   LcdWrite(LCD_CMD, 0x9a);  // Set LCD Vop (Contrast). //B1
   LcdWrite(LCD_CMD, 0x04);  // Set Temp coefficent. //0x04
@@ -188,105 +183,94 @@ void LcdInitialise(void)
   LcdWrite(LCD_C, 0x0C);
 }
 
- //显示字符串
-void LcdString(int8_t *characters)
-{
-  while (*characters)
-  {
+//显示字符串
+void LcdString(int8_t *characters) {
+  while (*characters) {
     LcdCharacter(*characters++);
   }
 }
- 
+
 //发送数据
-void LcdWrite(uuint16_t 8_t  dc, uuint16_t 8_t  data)
+void LcdWrite(uuint16_t 8_t dc, uuint16_t 8_t data)
 {
   digitalWrite(PIN_DC, dc);
   digitalWrite(PIN_SCE, LOW);
   shiftOut(PIN_SDIN, PIN_SCLK, MSBFIRST, data);
   digitalWrite(PIN_SCE, HIGH);
 }
- 
+
 /**
  * gotoXY 用于定位屏幕坐标
  * x - range: 0 to 84
  * y - range: 0 to 5
  */
 
-void gotoXY(uint16_t  x, uint16_t  y)
-{
-  LcdWrite( 0, 0x80 | x);  // Column.
-  LcdWrite( 0, 0x40 | y);  // Row.
+void gotoXY(uint16_t x, uint16_t y) {
+  LcdWrite(0, 0x80 | x);  // Column.
+  LcdWrite(0, 0x40 | y);  // Row.
 }
- 
 
- //画一个矩形
-void drawBox(void)
-{
-  uint16_t  j;
-  for(j = 0; j < 84; j++) // top
-  {
+//画一个矩形
+void drawBox(void) {
+  uint16_t j;
+  for (j = 0; j < 84; j++) // top
+      {
     gotoXY(j, 0);
     LcdWrite(1, 0x01);
   }
- 
-  for(j = 0; j < 84; j++) //Bottom
-  {
+
+  for (j = 0; j < 84; j++) //Bottom
+      {
     gotoXY(j, 5);
     LcdWrite(1, 0x80);
   }
- 
-  for(j = 0; j < 6; j++) // Right
-  {
+
+  for (j = 0; j < 6; j++) // Right
+      {
     gotoXY(83, j);
     LcdWrite(1, 0xff);
   }
- 
-  for(j = 0; j < 6; j++) // Left
-  {
+
+  for (j = 0; j < 6; j++) // Left
+      {
     gotoXY(0, j);
     LcdWrite(1, 0xff);
   }
 }
- 
- //滚动显示字符
-void Scroll(String message)
-{
-  for (uint16_t  i = scrollPosition; i < scrollPosition + 11; i++)
-  {
-    if ((i >= message.length()) || (i < 0))
-    {
+
+//滚动显示字符
+void Scroll(String message) {
+  for (uint16_t i = scrollPosition; i < scrollPosition + 11; i++) {
+    if ((i >= message.length()) || (i < 0)) {
       LcdCharacter(' ');
-    }
-    else
-    {
+    } else {
       LcdCharacter(message.charAt(i));
     }
   }
   scrollPosition++;
-  if ((scrollPosition >= message.length()) && (scrollPosition > 0))
-  {
+  if ((scrollPosition >= message.length()) && (scrollPosition > 0)) {
     scrollPosition = -10;
   }
 }
 /*
-void setup(void)
-{
-  LcdInitialise();
-  LcdClear();
-  drawBox();
+ void setup(void)
+ {
+ LcdInitialise();
+ LcdClear();
+ drawBox();
  
-  gotoXY(7,1);
-  LcdString("Nokia 5110");
-  gotoXY(4,2);
-  LcdString("Scroll Demo");
-}
+ gotoXY(7,1);
+ LcdString("Nokia 5110");
+ gotoXY(4,2);
+ LcdString("Scroll Demo");
+ }
  
-void loop(void)
-{
-  gotoXY(4,4);
-  Scroll("men jin xi tong v0.1 by Yangzhe");
-  delay(500);
-}
-*/
+ void loop(void)
+ {
+ gotoXY(4,4);
+ Scroll("men jin xi tong v0.1 by Yangzhe");
+ delay(500);
+ }
+ */
 
 
