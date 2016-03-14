@@ -1,24 +1,24 @@
 
-extern unsigned char crc_table[];
+extern uint8_t  crc_table[];
 
 #define BUAD 512000//256000=31.25
 #define TIMER1_TIME (65536-125)//62.5us
-unsigned long tx_timer=0;
+uint32_t  tx_timer=0;
 
 #define TX_BUFF_SIZE 20
-char tx_Buff[TX_BUFF_SIZE]={0};
-int tx_head=0,tx_tail=0;
+int8_t tx_Buff[TX_BUFF_SIZE]={0};
+int16_t tx_head=0,tx_tail=0;
 #define TX_DELAY_TIME 100//at least 74us,for process the recieved data
 
 #define RX_BUFF_SIZE 20
 #define RECIEVE_EMPTY 0
 #define RECIEVING 1
 #define RECIEVE_FINISH 2
-char rx_recieve_flag=0;
-char rx_Data=0;
-char rx_Buff[RX_BUFF_SIZE]={0};
-char *rx_p=rx_Buff,*rx_p_head=rx_Buff,*rx_p_end=&rx_Buff[9];
-char rx_pointer=0;
+int8_t rx_recieve_flag=0;
+int8_t rx_Data=0;
+int8_t rx_Buff[RX_BUFF_SIZE]={0};
+int8_t *rx_p=rx_Buff,*rx_p_head=rx_Buff,*rx_p_end=&rx_Buff[9];
+int8_t rx_pointer=0;
 boolean led;
 #define LCD_BUFF_SIZE 10
 unsigned LCD_Buff[LCD_BUFF_SIZE]={0};
@@ -28,7 +28,7 @@ void rs485_Init()
 {
   
   // Set baud rate
-  unsigned int UBRR0_value;
+  unsigned int16_t UBRR0_value;
   if (BUAD< 57600){
     //UBRR0_value = ((F_CPU / (8L * baudrate)) - 1)/2 ;
     UBRR0_value = ((F_CPU / (8L * BUAD)) - 1)/2 ;
@@ -46,7 +46,7 @@ void rs485_Init()
   UCSR0B |= 1<<RXEN0;
   UCSR0B |= 1<<TXEN0;
 	
-  char t=UDR0;
+  int8_t t=UDR0;
   // enable interrupt on complete reception of a byte
   UCSR0B |= 1<<RXCIE0;
 	  
@@ -113,7 +113,7 @@ void timer1_Init()
   //enanble timer1 overflow interrupt
   sbi(TIMSK1,TOIE1);
 }
-char rs485_tx_available()
+int8_t rs485_tx_available()
 {
   if(tx_tail==0)
     if(micros()-tx_timer>TX_DELAY_TIME)
@@ -132,7 +132,7 @@ ISR(USART_UDRE_vect)
      tx_timer=micros();
   }
 }
-void rs485_write(char data) 
+void rs485_write(int8_t data) 
 {
   tx_Buff[0]=data;
   tx_Buff[1]=crc_table[data];
@@ -142,12 +142,12 @@ void rs485_write(char data)
   UCSR0B |=  (1 << UDRIE0); 
 }
 
-void send_voice(char data) 
+void send_voice(int8_t data) 
 {
-  char arr[2]={FUNCTION_VOICE};
+  int8_t arr[2]={FUNCTION_VOICE};
   arr[1]=data;
-  char crc=CRC8_Tables(arr,2);
-  char i;
+  int8_t crc=CRC8_Tables(arr,2);
+  int8_t i;
   for(i=0;i<2;i++)
     tx_Buff[i]=arr[i];
   tx_Buff[i++]=crc;
@@ -157,12 +157,12 @@ void send_voice(char data)
   UCSR0B |=  (1 << UDRIE0); 
 }
 
-void send_command(char data) 
+void send_command(int8_t data) 
 {
-  char arr[2]={FUNCTION_COMMAND};
+  int8_t arr[2]={FUNCTION_COMMAND};
   arr[1]=data;
-  char crc=CRC8_Tables(arr,2);
-  char i;
+  int8_t crc=CRC8_Tables(arr,2);
+  int8_t i;
   for(i=0;i<2;i++)
     tx_Buff[i]=arr[i];
   tx_Buff[i++]=crc;
@@ -172,15 +172,15 @@ void send_command(char data)
   UCSR0B |=  (1 << UDRIE0); 
 }
 
-void send_address(char data[]) 
+void send_address(int8_t data[]) 
 {
-  char arr[5]={FUNCTION_COMMAND};
+  int8_t arr[5]={FUNCTION_COMMAND};
   arr[1]=COMMAND_CHECK_ADDRESS;
   arr[2]=data[0];
   arr[3]=data[1];
   arr[4]=data[2];
-  char crc=CRC8_Tables(arr,2);
-  char i;
+  int8_t crc=CRC8_Tables(arr,2);
+  int8_t i;
   for(i=0;i<5;i++)
     tx_Buff[i]=arr[i];
   tx_Buff[i++]=crc;
@@ -190,10 +190,10 @@ void send_address(char data[])
   UCSR0B |=  (1 << UDRIE0); 
 }
 
-void rs485_writes(char *data,char len) 
+void rs485_writes(int8_t *data,int8_t len) 
 {
-  char crc=CRC8_Tables(data,len);
-  char i;
+  int8_t crc=CRC8_Tables(data,len);
+  int8_t i;
   for(i=0;i<len;i++)
     tx_Buff[i]=*data++;
   tx_Buff[i++]=crc;
@@ -209,7 +209,7 @@ ISR(TIMER1_OVF_vect)//need 74us to process the recieved data
   rx_pointer=0;
   if(CRC8_Tables(rx_Buff,rx_pointer)==0)
   {
-      int i;
+      int16_t i;
       //rx_val+=rx_Buff[0];
       if(rx_Buff[0]==FUNCTION_VOICE)
       {

@@ -1,4 +1,4 @@
-char key_table[4][4]={
+int8_t key_table[4][4]={
   '1','2','3','a',
   '4','5','6','b',
   '7','8','9','c',
@@ -10,21 +10,21 @@ char key_table[4][4]={
 #define KEY_UP ')'
 #define KEY_PERIOD 20 //ms
 #define KEY_CHECK '@'
-char key_val=NO_KEY;
+int8_t key_val=NO_KEY;
 
 #define key_state0 0
 #define key_state1 1
 #define key_state2 2
-char key_state=key_state0;
-char keyScan(unsigned val)
+int8_t key_state=key_state0;
+int8_t keyScan(uint8_t val)
 {
-  static unsigned long key_timer=0;
-  char key_return=NO_KEY;
+  static uint32_t key_timer=0;
+  int8_t key_return=NO_KEY;
   if(millis()-key_timer<KEY_PERIOD)
     return NO_KEY;  
   
   key_timer=millis();  
-  char key;
+  int8_t key;
   if(val<25)
   {
     key=NO_KEY;

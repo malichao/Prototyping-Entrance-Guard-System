@@ -3,7 +3,7 @@ char ringtone()
 {
   gotoXY(0,3);
   LcdNum(2);
-  unsigned long time=millis();
+  uint32_t  time=millis();
   char key;
   int i,j;
   while(millis()-time<30000)//30s
@@ -41,7 +41,7 @@ char ringtone()
 
 void calling()
 {
-  unsigned long time=millis();
+  uint32_t  time=millis();
   char key;
   int i,j;
   address_reply=false;

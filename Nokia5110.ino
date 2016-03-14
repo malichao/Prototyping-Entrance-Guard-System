@@ -14,10 +14,10 @@
 #define LCD_X     84
 #define LCD_Y     48
  
-int scrollPosition = -10;
+uint16_t  scrollPosition = -10;
  
  //ASCII字库
-static const byte ASCII[][5] =
+static const uuint16_t 8_t ASCII[][5] =
 {
  {0x00, 0x00, 0x00, 0x00, 0x00} // 20
 ,{0x00, 0x00, 0x5f, 0x00, 0x00} // 21 !
@@ -118,18 +118,16 @@ static const byte ASCII[][5] =
 };
 
 //显示单个数字
-void LcdNum(unsigned long num)
-{
-  char num_arr[20]={0};
-  //char c=0;
+void LcdNum(uuint16_t 32_t num){
+  int8_t num_arr[20]={0};
+  //int8_t c=0;
   //LcdCharacter('d');
-  if(num==0)
-  {
+  if(num==0){
     //LcdCharacter('z');
     LcdCharacter('0');
   }
   else{
-    int i;
+    uint16_t  i;
     for(i=0;;i++)
     {
      if(num!=0)
@@ -145,16 +143,16 @@ void LcdNum(unsigned long num)
     for(;i>=0;i--)
      LcdCharacter('0'+num_arr[i]);
   }
-  //int i;
+  //uint16_t  i;
   //for(i=0;i<c;i++)
   //LcdCharacter('c');
 }
 
 //显示单个字符
-void LcdCharacter(char character)
+void LcdCharacter(int8_t character)
 {
   LcdWrite(LCD_D, 0x00);
-  for (int index = 0; index < 5; index++)
+  for (uint16_t  index = 0; index < 5; index++)
   {
     LcdWrite(LCD_D, ASCII[character - 0x20][index]);
   }
@@ -164,7 +162,7 @@ void LcdCharacter(char character)
  //清屏
 void LcdClear(void)
 {
-  for (int index = 0; index < LCD_X * LCD_Y / 8; index++)
+  for (uint16_t  index = 0; index < LCD_X * LCD_Y / 8; index++)
   {
     LcdWrite(LCD_D, 0x00);
   }
@@ -191,7 +189,7 @@ void LcdInitialise(void)
 }
 
  //显示字符串
-void LcdString(char *characters)
+void LcdString(int8_t *characters)
 {
   while (*characters)
   {
@@ -200,7 +198,7 @@ void LcdString(char *characters)
 }
  
 //发送数据
-void LcdWrite(byte dc, byte data)
+void LcdWrite(uuint16_t 8_t  dc, uuint16_t 8_t  data)
 {
   digitalWrite(PIN_DC, dc);
   digitalWrite(PIN_SCE, LOW);
@@ -214,7 +212,7 @@ void LcdWrite(byte dc, byte data)
  * y - range: 0 to 5
  */
 
-void gotoXY(int x, int y)
+void gotoXY(uint16_t  x, uint16_t  y)
 {
   LcdWrite( 0, 0x80 | x);  // Column.
   LcdWrite( 0, 0x40 | y);  // Row.
@@ -224,7 +222,7 @@ void gotoXY(int x, int y)
  //画一个矩形
 void drawBox(void)
 {
-  int j;
+  uint16_t  j;
   for(j = 0; j < 84; j++) // top
   {
     gotoXY(j, 0);
@@ -253,7 +251,7 @@ void drawBox(void)
  //滚动显示字符
 void Scroll(String message)
 {
-  for (int i = scrollPosition; i < scrollPosition + 11; i++)
+  for (uint16_t  i = scrollPosition; i < scrollPosition + 11; i++)
   {
     if ((i >= message.length()) || (i < 0))
     {
