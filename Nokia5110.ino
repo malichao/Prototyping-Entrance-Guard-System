@@ -17,7 +17,7 @@
 uint16_t  scrollPosition = -10;
  
  //ASCII字库
-static const uuint16_t 8_t ASCII[][5] =
+static const uint8_t ASCII[][5] =
 {
  {0x00, 0x00, 0x00, 0x00, 0x00} // 20
 ,{0x00, 0x00, 0x5f, 0x00, 0x00} // 21 !
@@ -117,8 +117,8 @@ static const uuint16_t 8_t ASCII[][5] =
 ,{0x00, 0x06, 0x09, 0x09, 0x06} // 7f →
 };
 
-//显示单个数字
-void LcdNum(uuint16_t 32_t num) {
+//Show single number
+void LcdNum(uint16_t num) {
   int8_t num_arr[20]= {0};
   //int8_t c=0;
   //LcdCharacter('d');
@@ -128,24 +128,18 @@ void LcdNum(uuint16_t 32_t num) {
   }
   else {
     uint16_t i;
-    for(i=0;;i++)
-    {
-      if(num!=0)
-      {
+    for(i=0;;i++){
+      if(num!=0){
         num_arr[i]=num%10;
         num/=10;
         //c++;
-      }
-      else
-      break;
-    }
+      }else
+        break;
+    } 
     i--;
     for(;i>=0;i--)
     LcdCharacter('0'+num_arr[i]);
   }
-  //uint16_t  i;
-  //for(i=0;i<c;i++)
-  //LcdCharacter('c');
 }
 
 //显示单个字符
@@ -191,7 +185,7 @@ void LcdString(int8_t *characters) {
 }
 
 //发送数据
-void LcdWrite(uuint16_t 8_t dc, uuint16_t 8_t data)
+void LcdWrite(uint8_t dc, uint8_t data)
 {
   digitalWrite(PIN_DC, dc);
   digitalWrite(PIN_SCE, LOW);
@@ -213,26 +207,22 @@ void gotoXY(uint16_t x, uint16_t y) {
 //画一个矩形
 void drawBox(void) {
   uint16_t j;
-  for (j = 0; j < 84; j++) // top
-      {
+  for (j = 0; j < 84; j++){ // top
     gotoXY(j, 0);
     LcdWrite(1, 0x01);
   }
 
-  for (j = 0; j < 84; j++) //Bottom
-      {
+  for (j = 0; j < 84; j++){ //Bottom
     gotoXY(j, 5);
     LcdWrite(1, 0x80);
   }
 
-  for (j = 0; j < 6; j++) // Right
-      {
+  for (j = 0; j < 6; j++){ // Right
     gotoXY(83, j);
     LcdWrite(1, 0xff);
   }
 
-  for (j = 0; j < 6; j++) // Left
-      {
+  for (j = 0; j < 6; j++){ // Left
     gotoXY(0, j);
     LcdWrite(1, 0xff);
   }
@@ -252,6 +242,7 @@ void Scroll(String message) {
     scrollPosition = -10;
   }
 }
+
 /*
  void setup(void)
  {

@@ -1,5 +1,5 @@
 
-uint8_t resultTable[256] = {
+uint8_t CRC8Table[256] = {
   0x00, 0x5e, 0xbc, 0xe2, 0x61, 0x3f, 0xdd, 0x83, 
   0xc2, 0x9c, 0x7e, 0x20, 0xa3, 0xfd, 0x1f, 0x41, 
   0x9d, 0xc3, 0x21, 0x7f, 0xfc, 0xa2, 0x40, 0x1e, 
@@ -35,7 +35,7 @@ uint8_t resultTable[256] = {
 };
 
 //Verify result values using lookup table
-uint8_t crc8_Tables(int8_t *data, int8_t length) {
+uint8_t crc8_Table(int8_t *data, int8_t length) {
   int8_t result = 0;
   for (; length > 0; length--) {
     result = resultTable[result ^ *data]; 
