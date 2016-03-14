@@ -1,26 +1,25 @@
-int8_t address_reply=false;
-int8_t master=true;
-//int8_t master=false;
-int8_t address[4]={'1','2','3',0};
-int8_t selected=SELECT_STATE_FALSE;
+int8_t AddressReply=false;
+int8_t Master=true;
+//int8_t Master=false;
+int8_t Address[4]={'1','2','3',0};
+int8_t IsSelected=SELECT_STATE_FALSE;
 
 
-extern int8_t key_state,key_val;
-int8_t call_state=CALL_STATE_NULL;
+extern int8_t KeyState,KeyValue;
+int8_t CallState=CallState_NULL;
 
-int8_t voice_TBuff[VBUFF_SIZE]={0},vt_pointer=0;
-int8_t voice_RBuff[VBUFF_SIZE]={0},vr_pointer=0;
-extern int8_t tx_Buff[];
+int8_t VoiceTXBuffer[VBUFF_SIZE]={0},VTXPointer=0;
+int8_t VoiceRXBuffer[VBUFF_SIZE]={0},VRXPointer=0;
+extern int8_t TXBuffer[];
 
-boolean voice_enable=false;
-boolean voice_enable_old=false;
+boolean VoiceEnable=false;
+boolean VoiceEnableOld=false;
 
-boolean div2,div4;
-int8_t open_flag=false;
-int8_t ring_flag=false;
-int8_t adc_channel=0;
+boolean Div2,Div4;
+boolean IsOpen=false;
+int8_t ADCChannel=0;
 
-Word adc0,adc1;
+Word ADC0,ADC1;
 
 /* 
  16M / 16 / 13 = 76.9kHz
@@ -82,8 +81,6 @@ void initTimer2(){
   sbi (TIMSK2,TOIE2);
 }
 
-uint32_t time,time1,time2,timeTx=0;
-uint32_t rx_counter=0,rx_val=0,Timer1_counter=0,rx_vect_counter=0,rx_check_counter=0;
 void setup(){
   LcdInitialise();
   LcdClear();
@@ -118,37 +115,31 @@ void clear_num(){
   number[3]=0;
 }
 
-int8_t state,last_state,function;
-#define CALL 0
-#define OPEN 1
-#define ADDRESS 2
-#define Null 4
-uint32_t open_millis=0;
 void loop(){
   gotoXY(0,2);
-  LcdString("address:");
-  LcdString(address);
+  LcdString("Address:");
+  LcdString(Address);
   gotoXY(0,1);
   LcdString("num=");
   LcdString(number);
   LcdString("     ");
 
-  if(master==true){
-    selected=SELECT_STATE_TRUE;
-    address[0]='0';
-    address[1]='0';
-    address[2]='0';
+  if(Master==true){
+    IsSelected=SELECT_STATE_TRUE;
+    Address[0]='0';
+    Address[1]='0';
+    Address[2]='0';
   }
     
 
-  int8_t key=keyScan(adc1.val>>6);
+  int8_t key=keyScan(ADC1.val>>6);
   switch (key) {
-      case 'a':   voice_enable=false;             //call
+      case 'a':   VoiceEnable=false;             //call
                   delay(10);
                   calling();
-                  voice_enable=false;
+                  VoiceEnable=false;
                   delay(10);
-                  send_command(COMMAND_CALL_OFF);
+                  sendCommand(COMMAND_CALL_OFF);
                   gotoXY(0,1);
                   LcdString("            ");
                   break;
@@ -157,80 +148,79 @@ void loop(){
       case 'y':   clear_num();break; 
       case 'n':   if(number[0]==0&&number[1]==0&&number[1]==0)
                     break;
-                  address[0]=number[0];
-                  address[1]=number[1];
-                  address[2]=number[2];
-                  selected=SELECT_STATE_FALSE;
+                  Address[0]=number[0];
+                  Address[1]=number[1];
+                  Address[2]=number[2];
+                  IsSelected=SELECT_STATE_FALSE;
                   clear_num();
                   break; 
-      case 'd':   if(selected==SELECT_STATE_TRUE)
-                  {
-                    voice_enable_old=voice_enable;  //open
-                    voice_enable=false;
+      case 'd':   if(IsSelected==SELECT_STATE_TRUE){
+                    VoiceEnableOld=VoiceEnable;  //open
+                    VoiceEnable=false;
                     delay(100);
-                    send_command(COMMAND_OPEN);
+                    sendCommand(COMMAND_OPEN);
                     gotoXY(0,1);
                     LcdString("   open    ");
                     delay(1500);
                     gotoXY(0,1);
                     LcdString("            ");
-                    voice_enable=voice_enable_old;
+                    VoiceEnable=VoiceEnableOld;
                   }
                   break;
       default:add_num(key);
         //save number
   }
 
-  if(selected==SELECT_STATE_CONFIRM){//ask reply
-    voice_enable=false;
+  if(IsSelected==SELECT_STATE_CONFIRM){//ask reply
+    VoiceEnable=false;
     delay(10);
-    send_command(COMMAND_CONFIRM_ADDRESS);
-    selected=SELECT_STATE_TRUE;
+    sendCommand(COMMAND_CONFIRM_Address);
+    IsSelected=SELECT_STATE_TRUE;
   }
-  if(selected==SELECT_STATE_TRUE){
-    if(open_flag==true){
+  if(IsSelected==SELECT_STATE_TRUE){
+    if(IsOpen==true){
       digitalWrite(RELAY_PIN, HIGH);
       gotoXY(0,1);
       LcdString("open recieve");
       delay(1500);
       digitalWrite(RELAY_PIN, LOW);
-      open_flag=false;
+      IsOpen=false;
       gotoXY(0,1);
       LcdString("            ");
     }
     
-    if(call_state==CALL_STATE_WAITE){
+    if(CallState==CallState_WAITE){
       gotoXY(0,1);
       LcdString("visitor call");
-      call_state=ringtone();
-      if(call_state==CALL_STATE_ON){
-        voice_enable=false;
+      CallState=ringtone();
+      if(CallState==CallState_ON){
+        VoiceEnable=false;
         delay(10);
-        send_command(COMMAND_CALL_BACK);
-        voice_enable=true;
+        sendCommand(COMMAND_CALL_BACK);
+        VoiceEnable=true;
         while(1){         //in calling
               gotoXY(0,1);
               LcdString("     on     ");
-              if(call_state==CALL_STATE_OFF)break;
-              if(keyScan(adc1.val>>6)=='c')break;
+              if(CallState==CallState_OFF)break;
+              if(keyScan(ADC1.val>>6)=='c')break;
             }
-        voice_enable=false;
+        VoiceEnable=false;
         delay(10);
-        send_command(COMMAND_CALL_OFF);
+        sendCommand(COMMAND_CALL_OFF);
         gotoXY(0,1);
         LcdString("            ");
-      }else if(call_state==CALL_STATE_OFF){
-        voice_enable=false;
+      }else if(CallState==CallState_OFF){
+        VoiceEnable=false;
         delay(10);
-        send_command(COMMAND_CALL_OFF);
-        voice_enable=false;
+        sendCommand(COMMAND_CALL_OFF);
+        VoiceEnable=false;
         gotoXY(0,1);
         LcdString("    off     ");
         delay(1500);
         gotoXY(0,1);
         LcdString("            ");
       }
-    call_state==CALL_STATE_NULL;
+    CallState==CallState_NULL;
     }
   }
 } // loop
@@ -238,32 +228,32 @@ void loop(){
 
 
 ISR(TIMER2_OVF_vect) {
-  div2=!div2;// divide timer2 frequency / 2 to 31.25kHz
+  Div2=!Div2;// divide timer2 frequency / 2 to 31.25kHz
   //div32=1;
-  if (div2){
-    div4=!div4; // divide timer2 frequency / 2 to 15.6kHz
-    if(div4){
-      if(adc_channel==0){//voice sample,rate=7.8kHz
-        adc0.v[0]=ADCL;
-        adc0.v[1]=ADCH; 
-        //OCR2B=adc0.v[1];
-        if(voice_enable)
-          send_voice(adc0.v[1]);
+  if (Div2){
+    Div4=!Div4; // divide timer2 frequency / 2 to 15.6kHz
+    if(Div4){
+      if(ADCChannel==0){//voice sample,rate=7.8kHz
+        ADC0.v[0]=ADCL;
+        ADC0.v[1]=ADCH; 
+        //OCR2B=ADC0.v[1];
+        if(VoiceEnable)
+          sendVoice(ADC0.v[1]);
         // Set Input Multiplexer to Channel 1
-        adc_channel=1;
+        ADCChannel=1;
         sbi(ADMUX,MUX0);   
-        if(vr_pointer>0)//play the received voice
-          OCR2B=voice_RBuff[vr_pointer--]; 
+        if(VRXPointer>0)//play the received voice
+          OCR2B=VoiceRXBuffer[VRXPointer--]; 
       }
-      else if(adc_channel==1){//key sample,rate=7.8kHz
-        adc1.v[0]=ADCL;
-        adc1.v[1]=ADCH; 
+      else if(ADCChannel==1){//key sample,rate=7.8kHz
+        ADC1.v[0]=ADCL;
+        ADC1.v[1]=ADCH; 
 
         // Set Input Multiplexer to Channel 0
-        adc_channel=0;
+        ADCChannel=0;
         cbi(ADMUX,MUX0);   
       }
       sbi(ADCSRA,ADSC);
-    }//div4
-  }//div2
+    }//Div4
+  }//Div2
 }
