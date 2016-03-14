@@ -1,5 +1,5 @@
 
-uint8_t crc_table[256] = {
+uint8_t resultTable[256] = {
   0x00, 0x5e, 0xbc, 0xe2, 0x61, 0x3f, 0xdd, 0x83, 
   0xc2, 0x9c, 0x7e, 0x20, 0xa3, 0xfd, 0x1f, 0x41, 
   0x9d, 0xc3, 0x21, 0x7f, 0xfc, 0xa2, 0x40, 0x1e, 
@@ -34,44 +34,45 @@ uint8_t crc_table[256] = {
   0xb6, 0xe8, 0x0a, 0x54, 0xd7, 0x89, 0x6b, 0x35, 
 };
 
-//使用CRC表进行校验
-uint8_t CRC8_Tables(int8_t *p, int8_t counter) {
-  int8_t crc8 = 0;
-  for (; counter > 0; counter--) {
-    crc8 = crc_table[crc8 ^ *p]; //查表得到CRC码
-    p++;
+//Verify result values using lookup table
+uint8_t crc8_Tables(int8_t *data, int8_t length) {
+  int8_t result = 0;
+  for (; length > 0; length--) {
+    result = resultTable[result ^ *data]; 
+    data++;
   }
-  return crc8;
+  return result;
 }
 
-//CRC计算一个字符
+//Calculate one byte result value
 uint8_t crc8_byte(int8_t data) {
-  uint8_t crc = 0x00;
+  uint8_t result = 0x00;
   int8_t extract = data;
   for (int8_t tempI = 8; tempI; tempI--) {
     int8_t sum = (crc ^ extract) & 0x01;
-    crc >>= 1;
+    result >>= 1;
     if (sum) {
-      crc ^= 0x8C;
+      result ^= 0x8C;
     }
     extract >>= 1;
   }
-  return crc;
+  return result;
 }
-//CRC计算字符串
-uint8_t crc8_bytes(int8_t *data, int8_t len) {
-  uint8_t crc = 0x00;
-  while (len--) {
+
+//Calculate result value for a buffer
+uint8_t crc8_bytes(int8_t *data, int8_t length) {
+  uint8_t result = 0x00;
+  while (length--) {
     int8_t extract = *data++;
     for (int8_t tempI = 8; tempI; tempI--) {
       int8_t sum = (crc ^ extract) & 0x01;
-      crc >>= 1;
+      result >>= 1;
       if (sum) {
-        crc ^= 0x8C;
+        result ^= 0x8C;
       }
       extract >>= 1;
     }
   }
-  return crc;
+  return result;
 }
 
