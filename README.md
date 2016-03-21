@@ -1,4 +1,4 @@
-# Prototyping_Entrance_Guard_System
+# Prototyping Entrance Guard System
 The code for my Entrance Guard System project,which prototyped a practical entrance guard system based on Arduino.It has the following functions:  
 -LCD screen and keyboard for interacting  
 -Voice communication(telephone quality)  
